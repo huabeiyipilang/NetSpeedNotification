@@ -1,0 +1,82 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/linearLayout">
+
+        <CheckBox
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="开启"
+            android:id="@+id/cb_switch"
+            android:checked="false"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@android:color/white"
+            android:button="@null"
+            android:background="@drawable/switch_bkg"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="刷新频率：" />
+
+        <RadioGroup
+            android:id="@+id/rg_rate_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@drawable/checkbox_button"
+                android:text="1秒"
+                android:id="@+id/rb_sec1"
+                android:tag="1000"
+                android:checked="false" />
+
+            <RadioButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@drawable/checkbox_button"
+                android:text="3秒"
+                android:id="@+id/rb_sec3"
+                android:tag="3000" />
+
+            <RadioButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@drawable/checkbox_button"
+                android:text="5秒"
+                android:id="@+id/rb_sec5"
+                android:tag="5000" />
+        </RadioGroup>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="使用说明：" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="使用内存清理应用的用户，请将本应用添加至白名单，以免出现进程被误杀的情况。" />
+    </LinearLayout>
+</RelativeLayout>

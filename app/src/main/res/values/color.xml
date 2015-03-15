@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="switch_checked">#2b95ff</color>
+    <color name="switch_unchecked">#f01726</color>
+    <color name="switch_pressed">#1267c5</color>
+</resources>
