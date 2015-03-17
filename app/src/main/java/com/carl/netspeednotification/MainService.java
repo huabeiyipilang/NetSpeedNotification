@@ -10,27 +10,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.widget.RemoteViews;
+
+import java.util.List;
+
 import cn.kli.utils.Conversion;
 
-public class MainService extends Service {
-    public static final int MSG_UPDATE_NOTIFICATION = 2;
+public class MainService extends Service implements NetworkManager.DataChangeListener{
 
     private NetworkManager mNetworkManager;
     private Notification mNotification = new Notification();
-    private SharedPreferences mPref;
-
-    private Handler mHandler = new Handler(){
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch(msg.what){
-                case MSG_UPDATE_NOTIFICATION:
-                    updateNotification();
-                    break;
-            }
-        }
-    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -41,8 +29,9 @@ public class MainService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mPref = PreferenceUtils.getInstance(this).getDefault();
+        mNetworkManager = NetworkManager.getInstance(this);
         initNotification();
+        mNetworkManager.addListener(this);
     }
 
     @Override
@@ -58,33 +47,30 @@ public class MainService extends Service {
         mNotification.contentIntent = pendingIntent;
     }
 
-    private void updateNotification(){
 
-        if(mNetworkManager == null){
-            mNetworkManager = new NetworkManager();
-        }
-        mNotification.icon = mNetworkManager.getIcon();
+    @Override
+    public void onDataChanged(float speed, float rxSpeed, float txSpeed, List<NetworkManager.AppInfo> appInfos) {
+        updateNotification();
+    }
+
+    private void updateNotification(){
+        mNotification.icon = mNetworkManager.getSpeedIcon();
         if(Build.VERSION.SDK_INT >= 11){
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
         }
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_main);
         contentView.setTextViewText(R.id.tv_title, getString(R.string.app_name));
-        contentView.setTextViewText(R.id.tv_content, "点击进入设置");
+        contentView.setTextViewText(R.id.tv_content, "上行："+NetworkManager.formatSpeed(mNetworkManager.getTxSpeed())
+                +"， 下行："+NetworkManager.formatSpeed(mNetworkManager.getRxSpeed()));
         mNotification.contentView = contentView;
         startForeground(1001, mNotification);
-        mHandler.removeMessages(MSG_UPDATE_NOTIFICATION);
-        mHandler.sendEmptyMessageDelayed(MSG_UPDATE_NOTIFICATION, getNotificationUpdateDuring());
 
-    }
-
-    private long getNotificationUpdateDuring(){
-        int rate = mPref.getInt("fresh_rate", 3000);
-        return rate;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         stopForeground(true);
+        mNetworkManager.removeListener(this);
     }
 }
