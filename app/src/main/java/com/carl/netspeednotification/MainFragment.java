@@ -12,16 +12,16 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.carl.netspeednotification.base.BaseFragment;
+import com.carl.netspeednotification.base.BlankActivity;
+import com.carl.netspeednotification.monitor.SpeedMonitorFragment;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
 
 
-public class MainFragment extends BaseFragment implements CompoundButton.OnCheckedChangeListener,
-    NetworkManager.DataChangeListener{
+public class MainFragment extends BaseFragment implements CompoundButton.OnCheckedChangeListener{
 
     private CheckBox mSwitchView;
-    private TextView mTestView;
 
     @Override
     public int getLayoutRes() {
@@ -32,7 +32,12 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
         mSwitchView = (CheckBox)findViewById(R.id.cb_switch);
         mSwitchView.setOnCheckedChangeListener(this);
         mSwitchView.setChecked(isServiceRunning(this.getActivity(), MainService.class.getName()));
-        mTestView = (TextView)findViewById(R.id.tv_test);
+        findViewById(R.id.bt_network_detail).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BlankActivity.startFragmentActivity(getActivity(), SpeedMonitorFragment.class, null);
+            }
+        });
     }
 
     public void initDatas(){
@@ -42,14 +47,12 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
     @Override
     public void onResume() {
         super.onResume();
-        NetworkManager.getInstance(this.getActivity()).addListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         MobclickAgent.onPause(this.getActivity());
-        NetworkManager.getInstance(this.getActivity()).removeListener(this);
     }
 
     @Override
@@ -98,18 +101,5 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
             }
             rb.setOnCheckedChangeListener(this);
         }
-    }
-
-    @Override
-    public void onDataChanged(float speed, float rxSpeed, float txSpeed, List<NetworkManager.AppInfo> appInfos) {
-        StringBuilder sb = new StringBuilder();
-        for (NetworkManager.AppInfo info : appInfos){
-            sb.append(info.getAppName()+"  ")
-                    .append("speed:"+NetworkManager.formatSpeed(info.getSpeed())+", ")
-                    .append("rxspeed:"+NetworkManager.formatSpeed(info.getRxSpeed())+", ")
-                    .append("txspeed:"+NetworkManager.formatSpeed(info.getTxSpeed())+", ")
-                    .append("\n");
-        }
-        mTestView.setText(sb.toString());
     }
 }

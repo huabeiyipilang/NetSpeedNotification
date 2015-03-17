@@ -49,7 +49,7 @@ public class MainService extends Service implements NetworkManager.DataChangeLis
 
 
     @Override
-    public void onDataChanged(float speed, float rxSpeed, float txSpeed, List<NetworkManager.AppInfo> appInfos) {
+    public void onDataChanged(float speed, float rxSpeed, float txSpeed) {
         updateNotification();
     }
 

@@ -80,9 +80,12 @@
             android:text="使用内存清理应用的用户，请将本应用添加至白名单，以免出现进程被误杀的情况。" />
     </LinearLayout>
 
-    <TextView
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/tv_test"/>
+        android:text="网络监控"
+        android:id="@+id/bt_network_detail"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/switch_bkg" />
 </RelativeLayout>

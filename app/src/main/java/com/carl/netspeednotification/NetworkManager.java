@@ -6,6 +6,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.TrafficStats;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 import java.text.DecimalFormat;
@@ -30,22 +32,30 @@ public class NetworkManager {
 
     private static final int MSG_UPDATE = 1;
 
-    private int mUpdateDuring = 1000;
-
     private List<AppInfo> mAppInfos;
     private List<DataChangeListener> mDataChangeListeners = new ArrayList<DataChangeListener>();
-    private Handler mmHandler = new Handler() {
+    private List<AppDataChangeListener> mAppDataChangeListeners = new ArrayList<AppDataChangeListener>();
+    private Handler mMainThreadHandler = new Handler();
+    private HandlerThread mThread = new HandlerThread("network_speed");
+    private NetworkHandler mHandler;
+
+    private class NetworkHandler extends Handler{
+
+        public NetworkHandler(Looper looper){
+            super(looper);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
                 case MSG_UPDATE:
                     update();
-                    mmHandler.sendEmptyMessageDelayed(MSG_UPDATE, mUpdateDuring);
+                    mHandler.sendEmptyMessageDelayed(MSG_UPDATE, getUpdateDuring());
                     break;
             }
         }
-    };
+    }
 
     private Comparator<AppInfo> mComparator = new Comparator<AppInfo>() {
         @Override
@@ -55,14 +65,19 @@ public class NetworkManager {
     };
 
     public interface DataChangeListener{
-        void onDataChanged(float speed, float rxSpeed, float txSpeed, List<AppInfo> appInfos);
+        void onDataChanged(float speed, float rxSpeed, float txSpeed);
+    }
+
+    public interface AppDataChangeListener{
+        void onAppDataChanged(List<AppInfo> appInfos);
     }
 
     private NetworkManager(Context context){
         mContext = context;
         mAppInfos = getAppInfos();
         mPref = PreferenceUtils.getInstance(mContext).getDefault();
-        mUpdateDuring = getUpdateDuring();
+        mThread.start();
+        mHandler = new NetworkHandler(mThread.getLooper());
     }
 
     public static NetworkManager getInstance(Context context) {
@@ -73,25 +88,34 @@ public class NetworkManager {
     }
 
     public void addListener(DataChangeListener listener){
-        boolean start = false;
-        if (mDataChangeListeners.size() == 0){
-            start = true;
-        }
         mDataChangeListeners.add(listener);
-        if (start){
-            mmHandler.sendEmptyMessage(MSG_UPDATE);
-        }
+        mHandler.removeMessages(MSG_UPDATE);
+        mHandler.sendEmptyMessage(MSG_UPDATE);
     }
 
     public void removeListener(DataChangeListener listener){
         mDataChangeListeners.remove(listener);
-        if (mDataChangeListeners.size() == 0){
-            mmHandler.removeMessages(MSG_UPDATE);
+        if (mDataChangeListeners.size() == 0 && mAppDataChangeListeners.size() == 0){
+            mHandler.removeMessages(MSG_UPDATE);
+        }
+    }
+
+
+    public void addAppListener(AppDataChangeListener listener){
+        mAppDataChangeListeners.add(listener);
+        mHandler.removeMessages(MSG_UPDATE);
+        mHandler.sendEmptyMessage(MSG_UPDATE);
+    }
+
+    public void removeAppListener(AppDataChangeListener listener){
+        mAppDataChangeListeners.remove(listener);
+        if (mDataChangeListeners.size() == 0 && mAppDataChangeListeners.size() == 0){
+            mHandler.removeMessages(MSG_UPDATE);
         }
     }
 
     public void setUpdateDuring(int during){
-        mUpdateDuring = during;
+
     }
 
     public int getSpeedIcon(){
@@ -107,31 +131,49 @@ public class NetworkManager {
     }
 
     private void update(){
-        long newTxBytes = TrafficStats.getTotalTxBytes();
-        long newRxBytes = TrafficStats.getTotalRxBytes();
-        long newTime = System.currentTimeMillis();
+        if (mDataChangeListeners.size() > 0){
+            long newTxBytes = TrafficStats.getTotalTxBytes();
+            long newRxBytes = TrafficStats.getTotalRxBytes();
+            long newTime = System.currentTimeMillis();
 
-        outputSpeed = 0;
-        try {
-            outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
-            outputRxSpeed = (newRxBytes - oldTotalRxBytes)*1000/(newTime - oldTime);
-            outputSpeed = outputRxSpeed + outputTxSpeed; // b/s
-        } catch (Exception e) {
+            outputSpeed = 0;
+            try {
+                outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
+                outputRxSpeed = (newRxBytes - oldTotalRxBytes)*1000/(newTime - oldTime);
+                outputSpeed = outputRxSpeed + outputTxSpeed; // b/s
+            } catch (Exception e) {
 
+            }
+
+            oldTotalRxBytes = newRxBytes;
+            oldTotalTxBytes = newTxBytes;
+            oldTime = newTime;
+
+            mMainThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (DataChangeListener listener : mDataChangeListeners){
+                        listener.onDataChanged(outputSpeed, outputRxSpeed, outputTxSpeed);
+                    }
+                }
+            });
         }
 
-        oldTotalRxBytes = newRxBytes;
-        oldTotalTxBytes = newTxBytes;
-        oldTime = newTime;
+        if (mAppDataChangeListeners.size() > 0){
+            for (AppInfo info : mAppInfos){
+                info.update();
+            }
 
-        for (AppInfo info : mAppInfos){
-            info.update();
-        }
+            Collections.sort(mAppInfos, mComparator);
 
-        Collections.sort(mAppInfos, mComparator);
-
-        for (DataChangeListener listener : mDataChangeListeners){
-            listener.onDataChanged(outputSpeed, outputRxSpeed, outputTxSpeed, mAppInfos);
+            mMainThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (AppDataChangeListener listener : mAppDataChangeListeners){
+                        listener.onAppDataChanged(mAppInfos);
+                    }
+                }
+            });
         }
     }
 
