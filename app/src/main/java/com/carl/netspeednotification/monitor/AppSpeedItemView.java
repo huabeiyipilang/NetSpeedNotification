@@ -1,6 +1,7 @@
 package com.carl.netspeednotification.monitor;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.widget.TextView;
 
 import com.carl.netspeednotification.NetworkManager;

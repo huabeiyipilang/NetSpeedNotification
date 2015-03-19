@@ -51,7 +51,7 @@ public class NetworkManager {
             switch (msg.what) {
                 case MSG_UPDATE:
                     update();
-                    mHandler.sendEmptyMessageDelayed(MSG_UPDATE, getUpdateDuring());
+                    mHandler.sendEmptyMessageDelayed(MSG_UPDATE, getFreshRate());
                     break;
             }
         }
@@ -114,8 +114,13 @@ public class NetworkManager {
         }
     }
 
-    public void setUpdateDuring(int during){
+    public void setFreshRate(int rate){
+        SharedPreferences prefs = PreferenceUtils.getInstance(mContext).getDefault();
+        prefs.edit().putInt("fresh_rate", rate).commit();
+    }
 
+    public int getFreshRate(){
+        return PreferenceUtils.getInstance(mContext).getDefault().getInt("fresh_rate", 3000);
     }
 
     public int getSpeedIcon(){
@@ -225,11 +230,6 @@ public class NetworkManager {
             }
         }
         return uidList;
-    }
-
-    private int getUpdateDuring(){
-        int rate = mPref.getInt("fresh_rate", 3000);
-        return rate;
     }
 
     public static class AppInfo{

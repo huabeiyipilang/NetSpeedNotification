@@ -87,5 +87,6 @@
         android:id="@+id/bt_network_detail"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/switch_bkg" />
+        android:background="@drawable/switch_bkg"
+        android:textColor="#ffffffff" />
 </RelativeLayout>

@@ -52,7 +52,6 @@ public class SpeedMonitorFragment extends BaseFragment implements NetworkManager
     @Override
     public void onAppDataChanged(List<NetworkManager.AppInfo> appInfos) {
         mAppInfos.clear();
-        mAppInfos.add(null);
         mAppInfos.addAll(appInfos);
         mAdapter.notifyDataSetChanged();
     }

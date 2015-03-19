@@ -3,4 +3,6 @@
     <color name="switch_checked">#2b95ff</color>
     <color name="switch_unchecked">#f01726</color>
     <color name="switch_pressed">#1267c5</color>
+
+    <color name="custom_blue">#2b95ff</color>
 </resources>

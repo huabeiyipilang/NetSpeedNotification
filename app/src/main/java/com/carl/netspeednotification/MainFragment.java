@@ -67,8 +67,7 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
         }else {
             if (isChecked){
                 Integer rate = Integer.parseInt((String)buttonView.getTag());
-                SharedPreferences prefs = PreferenceUtils.getInstance(this.getActivity()).getDefault();
-                prefs.edit().putInt("fresh_rate", rate).commit();
+                NetworkManager.getInstance(getActivity()).setFreshRate(rate);
             }
         }
     }
@@ -93,7 +92,7 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
 
     private void initRate(){
         RadioGroup rateGroup = (RadioGroup)findViewById(R.id.rg_rate_list);
-        int rate = PreferenceUtils.getInstance(this.getActivity()).getDefault().getInt("fresh_rate", 3000);
+        int rate = NetworkManager.getInstance(getActivity()).getFreshRate();
         for (int i = 0; i < rateGroup.getChildCount(); i++){
             RadioButton rb = (RadioButton) rateGroup.getChildAt(i);
             if (Integer.parseInt((String) rb.getTag()) == rate){

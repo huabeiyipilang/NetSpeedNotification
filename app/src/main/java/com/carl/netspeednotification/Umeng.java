@@ -51,6 +51,11 @@ public class Umeng {
         MobclickAgent.onEvent(sContext, "ads_action", action);
     }
 
+    public static String launcherAdType(){
+        String type = MobclickAgent.getConfigParams(App.getContext(), "launcher_ad_type");
+        return type;
+    }
+
     public static boolean isAdsShouldShow(){
         String show_ad = MobclickAgent.getConfigParams(App.getContext(), "show_ad");
         boolean showAd = "true".equals(show_ad) ? true : false;
