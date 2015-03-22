@@ -31,7 +31,8 @@
         android:textColor="@android:color/darker_gray"
         android:text="上传速度"
         android:gravity="center"
-        android:id="@+id/tv_tx_speed" />
+        android:id="@+id/tv_tx_speed"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="0dp"
@@ -40,5 +41,15 @@
         android:textColor="@android:color/darker_gray"
         android:text="下载速度"
         android:gravity="center"
-        android:id="@+id/tv_rx_speed" />
+        android:id="@+id/tv_rx_speed"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@android:color/darker_gray"
+        android:text="流量"
+        android:gravity="center"
+        android:id="@+id/tv_net_blow" />
 </LinearLayout>

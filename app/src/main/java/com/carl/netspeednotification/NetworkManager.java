@@ -205,9 +205,28 @@ public class NetworkManager {
             speed = speed/1000000;
             res = "M/s";
         }
-        DecimalFormat df = new DecimalFormat("0");
-        res = df.format(speed) + res;
+        res = formatNumber(speed) + res;
         return res;
+    }
+
+    public static String formatBlow(float blow){
+        String res = "";
+        if(blow < 1000){   // b/s
+            res = "B";
+        }else if(blow < 1000000){  // kb/s
+            blow = blow/1000;
+            res = "K";
+        }else if(blow < 1000000000){   // mb/s
+            blow = blow/1000000;
+            res = "M";
+        }
+        res = formatNumber(blow) + res;
+        return res;
+    }
+
+    private static String formatNumber(float num){
+        DecimalFormat df = new DecimalFormat("0");
+        return df.format(num);
     }
 
     private List<AppInfo> getAppInfos() {
@@ -224,6 +243,8 @@ public class NetworkManager {
                         AppInfo appInfo = new AppInfo();
                         appInfo.uid = info.applicationInfo.uid;
                         appInfo.appName = pm.getApplicationLabel(info.applicationInfo).toString();
+                        appInfo.originRxBlow = TrafficStats.getUidRxBytes(appInfo.uid);
+                        appInfo.originRxBlow = TrafficStats.getUidTxBytes(appInfo.uid);
                         uidList.add(appInfo);
                     }
                 }
@@ -237,9 +258,12 @@ public class NetworkManager {
         private int uid;
         private long oldTotalRxBytes = 0L;
         private long oldTotalTxBytes = 0L;
-        private float outputSpeed = 0f;
         private float outputRxSpeed = 0f;
         private float outputTxSpeed = 0f;
+        private float originRxBlow = 0f;      //初始下行流量
+        private float originTxBlow = 0f;      //初始上行流量
+        private float outputRxBlow = 0f;
+        private float outputTxBlow = 0f;
         private long oldTime;
 
 
@@ -247,12 +271,11 @@ public class NetworkManager {
             long newTxBytes = TrafficStats.getUidTxBytes(uid);
             long newRxBytes = TrafficStats.getUidRxBytes(uid);
             long newTime = System.currentTimeMillis();
-
-            outputSpeed = 0;
             try {
                 outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
                 outputRxSpeed = (newRxBytes - oldTotalRxBytes)*1000/(newTime - oldTime);
-                outputSpeed = outputRxSpeed + outputTxSpeed; // b/s
+                outputTxBlow = newTxBytes - originTxBlow;
+                outputRxBlow = newRxBytes - originRxBlow;
             } catch (Exception e) {
 
             }
@@ -267,7 +290,7 @@ public class NetworkManager {
         }
 
         public float getSpeed(){
-            return outputSpeed;
+            return outputRxSpeed + outputTxSpeed;
         }
 
         public float getRxSpeed(){
@@ -276,6 +299,18 @@ public class NetworkManager {
 
         public float getTxSpeed(){
             return outputTxSpeed;
+        }
+
+        public float getBlow(){
+            return outputRxBlow + outputTxBlow;
+        }
+
+        public float getRxBlow(){
+            return outputRxBlow;
+        }
+
+        public float getTxBlow(){
+            return outputTxBlow;
         }
     }
 }

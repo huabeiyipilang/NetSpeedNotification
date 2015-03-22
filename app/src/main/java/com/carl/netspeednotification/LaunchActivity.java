@@ -34,7 +34,7 @@ public class LaunchActivity extends ActionBarActivity {
         mAdsGroup = (ViewGroup)findViewById(R.id.ads_container);
         initPreference();
         initAd();
-        mHandler.postDelayed(mStartRunnable, BuildConfig.DEBUG ? 5000 : 5000);
+        mHandler.postDelayed(mStartRunnable, BuildConfig.DEBUG ? 3000 : 3000);
     }
 
     @Override

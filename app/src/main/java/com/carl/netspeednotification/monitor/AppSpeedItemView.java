@@ -19,6 +19,7 @@ public class AppSpeedItemView extends BaseItemView{
     private TextView mSpeedView;
     private TextView mRxSpeedView;
     private TextView mTxSpeedView;
+    private TextView mBlowView;
 
     public AppSpeedItemView(Context context) {
         super(context);
@@ -35,6 +36,7 @@ public class AppSpeedItemView extends BaseItemView{
         mSpeedView = (TextView)findViewById(R.id.tv_speed);
         mRxSpeedView = (TextView)findViewById(R.id.tv_rx_speed);
         mTxSpeedView = (TextView)findViewById(R.id.tv_tx_speed);
+        mBlowView = (TextView)findViewById(R.id.tv_net_blow);
     }
 
     @Override
@@ -48,8 +50,9 @@ public class AppSpeedItemView extends BaseItemView{
             NetworkManager.AppInfo info = (NetworkManager.AppInfo)data;
             mAppNameView.setText(info.getAppName());
             mSpeedView.setText(NetworkManager.formatSpeed(info.getSpeed()));
-            mRxSpeedView.setText(NetworkManager.formatSpeed(info.getRxSpeed()));
-            mTxSpeedView.setText(NetworkManager.formatSpeed(info.getTxSpeed()));
+//            mRxSpeedView.setText(NetworkManager.formatSpeed(info.getRxSpeed()));
+//            mTxSpeedView.setText(NetworkManager.formatSpeed(info.getTxSpeed()));
+            mBlowView.setText(NetworkManager.formatSpeed(info.getBlow()));
         }
     }
 }

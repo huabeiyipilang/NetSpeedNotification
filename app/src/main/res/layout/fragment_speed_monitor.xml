@@ -34,18 +34,10 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textColor="@android:color/white"
-        android:text="上行"
+        android:text="流量"
         android:gravity="center"
         android:id="@+id/tv_tx_speed" />
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textColor="@android:color/white"
-        android:text="下行"
-        android:gravity="center"
-        android:id="@+id/tv_rx_speed" />
 </LinearLayout>
     <ListView
         android:layout_width="match_parent"
