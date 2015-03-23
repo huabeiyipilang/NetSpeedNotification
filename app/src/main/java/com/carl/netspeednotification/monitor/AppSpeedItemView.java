@@ -52,7 +52,7 @@ public class AppSpeedItemView extends BaseItemView{
             mSpeedView.setText(NetworkManager.formatSpeed(info.getSpeed()));
 //            mRxSpeedView.setText(NetworkManager.formatSpeed(info.getRxSpeed()));
 //            mTxSpeedView.setText(NetworkManager.formatSpeed(info.getTxSpeed()));
-            mBlowView.setText(NetworkManager.formatSpeed(info.getBlow()));
+            mBlowView.setText(NetworkManager.formatBlow(info.getBlow()));
         }
     }
 }

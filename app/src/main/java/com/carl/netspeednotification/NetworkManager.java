@@ -244,7 +244,7 @@ public class NetworkManager {
                         appInfo.uid = info.applicationInfo.uid;
                         appInfo.appName = pm.getApplicationLabel(info.applicationInfo).toString();
                         appInfo.originRxBlow = TrafficStats.getUidRxBytes(appInfo.uid);
-                        appInfo.originRxBlow = TrafficStats.getUidTxBytes(appInfo.uid);
+                        appInfo.originTxBlow = TrafficStats.getUidTxBytes(appInfo.uid);
                         uidList.add(appInfo);
                     }
                 }
