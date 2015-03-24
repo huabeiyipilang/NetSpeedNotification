@@ -74,7 +74,7 @@ public class NetworkManager {
 
     private NetworkManager(Context context){
         mContext = context;
-        mAppInfos = getAppInfos();
+        mAppInfos = initAppInfos();
         mPref = PreferenceUtils.getInstance(mContext).getDefault();
         mThread.start();
         mHandler = new NetworkHandler(mThread.getLooper());
@@ -229,7 +229,11 @@ public class NetworkManager {
         return df.format(num);
     }
 
-    private List<AppInfo> getAppInfos() {
+    public List<AppInfo> getAppInfos(){
+        return mAppInfos;
+    }
+
+    private List<AppInfo> initAppInfos() {
         List<AppInfo> uidList = new ArrayList<AppInfo>();
         PackageManager pm = mContext.getPackageManager();
         List<PackageInfo> packageinfos = pm
