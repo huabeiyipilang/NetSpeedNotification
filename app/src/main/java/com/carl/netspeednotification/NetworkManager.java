@@ -14,9 +14,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class NetworkManager {
+
+    public final static int SPEED_CACHE_MAX = 20;
 
     private static NetworkManager sInstance;
     private Context mContext;
@@ -38,6 +41,7 @@ public class NetworkManager {
     private Handler mMainThreadHandler = new Handler();
     private HandlerThread mThread = new HandlerThread("network_speed");
     private NetworkHandler mHandler;
+    private LinkedList<Float> mSpeedCache = new LinkedList<Float>();
 
     private class NetworkHandler extends Handler{
 
@@ -75,7 +79,7 @@ public class NetworkManager {
     private NetworkManager(Context context){
         mContext = context;
         mAppInfos = initAppInfos();
-        mPref = PreferenceUtils.getInstance(mContext).getDefault();
+        mPref = PreferenceUtils.getInstance().getDefault();
         mThread.start();
         mHandler = new NetworkHandler(mThread.getLooper());
     }
@@ -115,12 +119,12 @@ public class NetworkManager {
     }
 
     public void setFreshRate(int rate){
-        SharedPreferences prefs = PreferenceUtils.getInstance(mContext).getDefault();
+        SharedPreferences prefs = PreferenceUtils.getInstance().getDefault();
         prefs.edit().putInt("fresh_rate", rate).commit();
     }
 
     public int getFreshRate(){
-        return PreferenceUtils.getInstance(mContext).getDefault().getInt("fresh_rate", 3000);
+        return PreferenceUtils.getInstance().getDefault().getInt("fresh_rate", 3000);
     }
 
     public int getSpeedIcon(){
@@ -146,6 +150,8 @@ public class NetworkManager {
                 outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
                 outputRxSpeed = (newRxBytes - oldTotalRxBytes)*1000/(newTime - oldTime);
                 outputSpeed = outputRxSpeed + outputTxSpeed; // b/s
+
+                addSpeedCache(outputSpeed);
             } catch (Exception e) {
 
             }
@@ -231,6 +237,17 @@ public class NetworkManager {
 
     public List<AppInfo> getAppInfos(){
         return mAppInfos;
+    }
+
+    public List<Float> getSpeedCache(){
+        return mSpeedCache;
+    }
+
+    private void addSpeedCache(float speed){
+        if (mSpeedCache.size() >= SPEED_CACHE_MAX){
+            mSpeedCache.removeLast();
+        }
+        mSpeedCache.push(speed);
     }
 
     private List<AppInfo> initAppInfos() {

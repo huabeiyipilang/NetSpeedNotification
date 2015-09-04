@@ -34,7 +34,7 @@ public class LaunchActivity extends ActionBarActivity {
         mAdsGroup = (ViewGroup)findViewById(R.id.ads_container);
         initPreference();
         initAd();
-        mHandler.postDelayed(mStartRunnable, BuildConfig.DEBUG ? 3000 : 3000);
+        mHandler.postDelayed(mStartRunnable, BuildConfig.DEBUG ? 500 : 3000);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class LaunchActivity extends ActionBarActivity {
     }
 
     private void initPreference(){
-        SharedPreferences prefs = PreferenceUtils.getInstance(this).getDefault();
+        SharedPreferences prefs = PreferenceUtils.getInstance().getDefault();
         if (prefs.getInt("fresh_rate", 0) == 0){
             prefs.edit().putInt("fresh_rate", 3000).commit();
         }

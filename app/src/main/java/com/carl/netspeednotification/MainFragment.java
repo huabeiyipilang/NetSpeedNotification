@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -13,15 +14,24 @@ import android.widget.TextView;
 
 import com.carl.netspeednotification.base.BaseFragment;
 import com.carl.netspeednotification.base.BlankActivity;
+import com.carl.netspeednotification.features.FeatureFragment;
 import com.carl.netspeednotification.monitor.SpeedMonitorFragment;
 import com.umeng.analytics.MobclickAgent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class MainFragment extends BaseFragment implements CompoundButton.OnCheckedChangeListener{
 
     private CheckBox mSwitchView;
+    private NetworkManager mNetworkManager;
+
+    private NetworkManager.DataChangeListener mSpeedChangeListener = new NetworkManager.DataChangeListener() {
+        @Override
+        public void onDataChanged(float speed, float rxSpeed, float txSpeed) {
+        }
+    };
 
     @Override
     public int getLayoutRes() {
@@ -36,22 +46,26 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
             @Override
             public void onClick(View v) {
                 BlankActivity.startFragmentActivity(getActivity(), SpeedMonitorFragment.class, null);
+//                BlankActivity.startFragmentActivity(getActivity(), FeatureFragment.class, null);
             }
         });
     }
 
     public void initDatas(){
+        mNetworkManager = NetworkManager.getInstance(getActivity().getApplicationContext());
         initRate();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        mNetworkManager.addListener(mSpeedChangeListener);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        mNetworkManager.removeListener(mSpeedChangeListener);
         MobclickAgent.onPause(this.getActivity());
     }
 

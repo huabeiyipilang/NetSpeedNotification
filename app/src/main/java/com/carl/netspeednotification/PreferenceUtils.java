@@ -17,9 +17,9 @@ public class PreferenceUtils {
         mPref = mContext.getSharedPreferences(mContext.getPackageName(), Context.MODE_PRIVATE);
     }
 
-    public static PreferenceUtils getInstance(Context context){
+    public static PreferenceUtils getInstance(){
         if (sInstance == null){
-            sInstance = new PreferenceUtils(context);
+            sInstance = new PreferenceUtils(App.getContext());
         }
         return sInstance;
     }

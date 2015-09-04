@@ -1,6 +1,7 @@
 package com.carl.netspeednotification.monitor;
 
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ListView;
 
 import com.carl.netspeednotification.NetworkManager;
@@ -8,6 +9,8 @@ import com.carl.netspeednotification.NetworkManager.AppInfo;
 import com.carl.netspeednotification.R;
 import com.carl.netspeednotification.base.BaseFragment;
 import com.carl.netspeednotification.base.ItemAdapter;
+import com.carl.netspeednotification.features.FeatureInfo;
+import com.carl.netspeednotification.features.FeatureManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +21,7 @@ import java.util.List;
 /**
  * Created by carl on 3/17/15.
  */
-public class SpeedMonitorFragment extends BaseFragment implements NetworkManager.AppDataChangeListener, View.OnClickListener {
+public class SpeedMonitorFragment extends BaseFragment implements NetworkManager.AppDataChangeListener {
 
     private final static int SORT_APP_NAME = 1;
     private final static int SORT_SPEED = 2;
@@ -47,6 +50,29 @@ public class SpeedMonitorFragment extends BaseFragment implements NetworkManager
     private View mArrowName;
     private View mArrowSpeed;
     private View mArrowFlow;
+    private FeatureInfo mOrderFeatureInfo;
+
+    private OnClickListener mSortClickListener = new OnClickListener(){
+
+        @Override
+        public void onClick(View v) {
+            if (mOrderFeatureInfo.getState() != FeatureInfo.STATE_ENABLE){
+                return;
+            }
+            switch (v.getId()){
+                case R.id.tab_app_name:
+                    mSortMode = SORT_APP_NAME;
+                    break;
+                case R.id.tab_speed:
+                    mSortMode = SORT_SPEED;
+                    break;
+                case R.id.tab_flow:
+                    mSortMode = SORT_FLOW;
+                    break;
+            }
+            updateSort();
+        }
+    };
 
     @Override
     public int getLayoutRes() {
@@ -55,9 +81,9 @@ public class SpeedMonitorFragment extends BaseFragment implements NetworkManager
 
     @Override
     public void initViews(View root) {
-        findViewById(R.id.tab_app_name).setOnClickListener(this);
-        findViewById(R.id.tab_speed).setOnClickListener(this);
-        findViewById(R.id.tab_flow).setOnClickListener(this);
+        findViewById(R.id.tab_app_name).setOnClickListener(mSortClickListener);
+        findViewById(R.id.tab_speed).setOnClickListener(mSortClickListener);
+        findViewById(R.id.tab_flow).setOnClickListener(mSortClickListener);
         mArrowName = findViewById(R.id.iv_arrow_app);
         mArrowName.setTag(SORT_APP_NAME);
         mArrowSpeed = findViewById(R.id.iv_arrow_speed);
@@ -70,6 +96,7 @@ public class SpeedMonitorFragment extends BaseFragment implements NetworkManager
     @Override
     public void initDatas() {
         getActivity().setTitle("网络监控");
+        mOrderFeatureInfo = FeatureManager.getsInstance().getFeatureInfo(FeatureManager.FEATURE_ORDER_APP_SPEED);
         mAdapter = new ItemAdapter(mAppInfos, AppSpeedItemView.class);
         mSpeedListView.setAdapter(mAdapter);
         updateSort();
@@ -97,25 +124,10 @@ public class SpeedMonitorFragment extends BaseFragment implements NetworkManager
         mAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.tab_app_name:
-                mSortMode = SORT_APP_NAME;
-                updateSort();
-                break;
-            case R.id.tab_speed:
-                mSortMode = SORT_SPEED;
-                updateSort();
-                break;
-            case R.id.tab_flow:
-                mSortMode = SORT_FLOW;
-                updateSort();
-                break;
-        }
-    }
-
     private void updateSort(){
+        if (mOrderFeatureInfo.getState() != FeatureInfo.STATE_ENABLE){
+            return;
+        }
         mArrowName.setVisibility((int)mArrowName.getTag() == mSortMode ? View.VISIBLE : View.GONE);
         mArrowSpeed.setVisibility((int)mArrowSpeed.getTag() == mSortMode ? View.VISIBLE : View.GONE);
         mArrowFlow.setVisibility((int)mArrowFlow.getTag() == mSortMode ? View.VISIBLE : View.GONE);
