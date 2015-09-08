@@ -1,14 +1,12 @@
 package com.carl.netspeednotification.monitor;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.widget.TextView;
 
-import com.carl.netspeednotification.NetworkManager;
+import com.carl.netspeednotification.manager.AppInfo;
+import com.carl.netspeednotification.manager.NetworkManager;
 import com.carl.netspeednotification.R;
 import com.carl.netspeednotification.base.BaseItemView;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by carl on 3/17/15.
@@ -47,7 +45,7 @@ public class AppSpeedItemView extends BaseItemView{
             mRxSpeedView.setText("下载速度");
             mTxSpeedView.setText("上传速度");
         }else{
-            NetworkManager.AppInfo info = (NetworkManager.AppInfo)data;
+            AppInfo info = (AppInfo)data;
             mAppNameView.setText(info.getAppName());
             mSpeedView.setText(NetworkManager.formatSpeed(info.getSpeed()));
 //            mRxSpeedView.setText(NetworkManager.formatSpeed(info.getRxSpeed()));

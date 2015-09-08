@@ -4,12 +4,12 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.widget.RemoteViews;
+
+import com.carl.netspeednotification.manager.AppInfo;
+import com.carl.netspeednotification.manager.NetworkManager;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class MainService extends Service implements NetworkManager.AppDataChange
         mNotification.contentIntent = pendingIntent;
     }
 
-    private void updateNotification(List<NetworkManager.AppInfo> appInfos){
+    private void updateNotification(List<AppInfo> appInfos){
         mNotification.icon = mNetworkManager.getSpeedIcon();
         if(Build.VERSION.SDK_INT >= 11){
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
@@ -57,7 +57,7 @@ public class MainService extends Service implements NetworkManager.AppDataChange
         contentView.setTextViewText(R.id.tv_rx_speed, "下行："+NetworkManager.formatSpeed(mNetworkManager.getRxSpeed()));
 
         if (appInfos != null && appInfos.size() > 1){
-            NetworkManager.AppInfo info = appInfos.get(0);
+            AppInfo info = appInfos.get(0);
             contentView.setTextViewText(R.id.tv_app1, info.getAppName());
             contentView.setTextViewText(R.id.tv_speed1, NetworkManager.formatSpeed(info.getSpeed()));
             info = appInfos.get(1);
@@ -83,7 +83,7 @@ public class MainService extends Service implements NetworkManager.AppDataChange
     }
 
     @Override
-    public void onAppDataChanged(List<NetworkManager.AppInfo> appInfos) {
+    public void onAppDataChanged(List<AppInfo> appInfos) {
         updateNotification(appInfos);
     }
 

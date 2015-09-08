@@ -1,4 +1,4 @@
-package com.carl.netspeednotification;
+package com.carl.netspeednotification.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,6 +9,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+
+import com.carl.netspeednotification.PreferenceUtils;
+import com.carl.netspeednotification.R;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -264,6 +267,7 @@ public class NetworkManager {
                         AppInfo appInfo = new AppInfo();
                         appInfo.uid = info.applicationInfo.uid;
                         appInfo.appName = pm.getApplicationLabel(info.applicationInfo).toString();
+                        appInfo.pkgName = info.packageName;
                         appInfo.originRxBlow = TrafficStats.getUidRxBytes(appInfo.uid);
                         appInfo.originTxBlow = TrafficStats.getUidTxBytes(appInfo.uid);
                         uidList.add(appInfo);
@@ -272,66 +276,5 @@ public class NetworkManager {
             }
         }
         return uidList;
-    }
-
-    public static class AppInfo{
-        private String appName;
-        private int uid;
-        private long oldTotalRxBytes = 0L;
-        private long oldTotalTxBytes = 0L;
-        private float outputRxSpeed = 0f;
-        private float outputTxSpeed = 0f;
-        private float originRxBlow = 0f;      //初始下行流量
-        private float originTxBlow = 0f;      //初始上行流量
-        private float outputRxBlow = 0f;
-        private float outputTxBlow = 0f;
-        private long oldTime;
-
-
-        private void update(){
-            long newTxBytes = TrafficStats.getUidTxBytes(uid);
-            long newRxBytes = TrafficStats.getUidRxBytes(uid);
-            long newTime = System.currentTimeMillis();
-            try {
-                outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
-                outputRxSpeed = (newRxBytes - oldTotalRxBytes)*1000/(newTime - oldTime);
-                outputTxBlow = newTxBytes - originTxBlow;
-                outputRxBlow = newRxBytes - originRxBlow;
-            } catch (Exception e) {
-
-            }
-
-            oldTotalRxBytes = newRxBytes;
-            oldTotalTxBytes = newTxBytes;
-            oldTime = newTime;
-        }
-
-        public String getAppName(){
-            return appName;
-        }
-
-        public float getSpeed(){
-            return outputRxSpeed + outputTxSpeed;
-        }
-
-        public float getRxSpeed(){
-            return outputRxSpeed;
-        }
-
-        public float getTxSpeed(){
-            return outputTxSpeed;
-        }
-
-        public float getBlow(){
-            return outputRxBlow + outputTxBlow;
-        }
-
-        public float getRxBlow(){
-            return outputRxBlow;
-        }
-
-        public float getTxBlow(){
-            return outputTxBlow;
-        }
     }
 }

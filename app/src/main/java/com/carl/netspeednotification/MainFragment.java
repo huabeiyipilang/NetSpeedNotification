@@ -3,22 +3,18 @@ package com.carl.netspeednotification;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import com.carl.netspeednotification.base.BaseFragment;
 import com.carl.netspeednotification.base.BlankActivity;
-import com.carl.netspeednotification.features.FeatureFragment;
-import com.carl.netspeednotification.monitor.SpeedMonitorFragment;
+import com.carl.netspeednotification.manager.NetworkManager;
+import com.carl.netspeednotification.monitor.NetworkMonitorFragment;
 import com.umeng.analytics.MobclickAgent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -45,7 +41,8 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
         findViewById(R.id.bt_network_detail).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BlankActivity.startFragmentActivity(getActivity(), SpeedMonitorFragment.class, null);
+                BlankActivity.startFragmentActivity(getActivity(), NetworkMonitorFragment.class, null);
+//                BlankActivity.startFragmentActivity(getActivity(), SpeedMonitorFragment.class, null);
 //                BlankActivity.startFragmentActivity(getActivity(), FeatureFragment.class, null);
             }
         });

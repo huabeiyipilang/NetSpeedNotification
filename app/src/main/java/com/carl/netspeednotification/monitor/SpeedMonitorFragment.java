@@ -4,8 +4,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
 
-import com.carl.netspeednotification.NetworkManager;
-import com.carl.netspeednotification.NetworkManager.AppInfo;
+import com.carl.netspeednotification.manager.AppInfo;
+import com.carl.netspeednotification.manager.NetworkManager;
 import com.carl.netspeednotification.R;
 import com.carl.netspeednotification.base.BaseFragment;
 import com.carl.netspeednotification.base.ItemAdapter;
@@ -13,7 +13,6 @@ import com.carl.netspeednotification.features.FeatureInfo;
 import com.carl.netspeednotification.features.FeatureManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
