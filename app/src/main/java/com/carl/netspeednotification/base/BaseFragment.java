@@ -3,6 +3,8 @@ package com.carl.netspeednotification.base;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import com.carl.netspeednotification.Umeng;
 
 abstract public class BaseFragment extends Fragment {
     private View mRootView;
+    private ActionBar mActionBar;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -20,6 +23,7 @@ abstract public class BaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(getLayoutRes(), container, false);
+        mActionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         initViews(mRootView);
         initDatas();
         return mRootView;
@@ -56,6 +60,10 @@ abstract public class BaseFragment extends Fragment {
             return null;
         }
         return mRootView.findViewById(id);
+    }
+
+    protected ActionBar getActionBar(){
+        return mActionBar;
     }
 
     /**

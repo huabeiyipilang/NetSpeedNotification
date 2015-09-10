@@ -5,10 +5,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.OnNavigationListener;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
@@ -27,6 +30,8 @@ import java.util.List;
  * Created by carl on 9/5/15.
  */
 public class NetworkMonitorFragment extends BaseFragment implements NetworkManager.AppDataChangeListener {
+
+    private Spinner mTitleSpinner;
     private ListView mListView;
     private List<AppInfo> mAppInfos = new ArrayList<AppInfo>();
     private AppItemAdapter mAdapter;
@@ -53,16 +58,19 @@ public class NetworkMonitorFragment extends BaseFragment implements NetworkManag
         mAdapter.setView(AppItemView.class);
         mListView.setAdapter(mAdapter);
 
-        getActivity().setTitle(mStrategy.getTitle());
-
-        SpinnerAdapter titleAdapter = new AppItemAdapter();
-
+        getActionBar().setCustomView(R.layout.actionbar_network_monitor_fragment);
+        getActionBar().setDisplayShowCustomEnabled(true);
+        mTitleSpinner = (Spinner)getActivity().findViewById(R.id.sp_tabs);
     }
 
     @Override
     public void initDatas() {
         mStrategyList.add(new BlowStrategy());
+        mStrategyList.add(new BlowRxStrategy());
+        mStrategyList.add(new BlowTxStrategy());
         mStrategyList.add(new SpeedStrategy());
+        mStrategyList.add(new SpeedRxStrategy());
+        mStrategyList.add(new SpeedTxStrategy());
 
         SpinnerAdapter strategyAdapter = new BaseAdapter() {
             @Override
@@ -93,20 +101,20 @@ public class NetworkMonitorFragment extends BaseFragment implements NetworkManag
             }
         };
 
-        OnNavigationListener onNavigationListener = new OnNavigationListener() {
-
+        mTitleSpinner.setAdapter(strategyAdapter);
+        mTitleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(int i, long l) {
-                Strategy strategy = mStrategyList.get(i);
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Strategy strategy = mStrategyList.get(position);
                 mStrategy = strategy;
                 mAdapter.notifyDataSetChanged();
-                return true;
             }
-        };
 
-        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setListNavigationCallbacks(strategyAdapter, onNavigationListener);
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -119,6 +127,16 @@ public class NetworkMonitorFragment extends BaseFragment implements NetworkManag
     public void onPause() {
         super.onPause();
         NetworkManager.getInstance(getActivity()).removeAppListener(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                getActivity().finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void updateSort(){
@@ -164,12 +182,48 @@ public class NetworkMonitorFragment extends BaseFragment implements NetworkManag
 
         @Override
         String getTitle() {
-            return "使用流量排行";
+            return "总流量排行";
         }
 
         @Override
         float getValue(AppInfo info) {
             return info.getBlow();
+        }
+
+        @Override
+        String getValueText(AppInfo info) {
+            return NetworkManager.formatBlow(getValue(info));
+        }
+    }
+
+    private class BlowTxStrategy extends Strategy{
+
+        @Override
+        String getTitle() {
+            return "上传流量排行";
+        }
+
+        @Override
+        float getValue(AppInfo info) {
+            return info.getTxBlow();
+        }
+
+        @Override
+        String getValueText(AppInfo info) {
+            return NetworkManager.formatBlow(getValue(info));
+        }
+    }
+
+    private class BlowRxStrategy extends Strategy{
+
+        @Override
+        String getTitle() {
+            return "下载流量排行";
+        }
+
+        @Override
+        float getValue(AppInfo info) {
+            return info.getRxBlow();
         }
 
         @Override
@@ -187,6 +241,40 @@ public class NetworkMonitorFragment extends BaseFragment implements NetworkManag
         @Override
         float getValue(AppInfo info) {
             return info.getSpeed();
+        }
+
+        @Override
+        String getValueText(AppInfo info) {
+            return NetworkManager.formatSpeed(getValue(info));
+        }
+    }
+
+    protected class SpeedTxStrategy extends Strategy{
+        @Override
+        String getTitle() {
+            return "上传网速排行";
+        }
+
+        @Override
+        float getValue(AppInfo info) {
+            return info.getTxSpeed();
+        }
+
+        @Override
+        String getValueText(AppInfo info) {
+            return NetworkManager.formatSpeed(getValue(info));
+        }
+    }
+
+    protected class SpeedRxStrategy extends Strategy{
+        @Override
+        String getTitle() {
+            return "下载网速排行";
+        }
+
+        @Override
+        float getValue(AppInfo info) {
+            return info.getRxSpeed();
         }
 
         @Override
