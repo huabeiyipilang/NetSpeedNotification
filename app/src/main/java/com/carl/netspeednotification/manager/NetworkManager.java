@@ -158,36 +158,33 @@ public class NetworkManager {
     }
 
     private void update(){
-        if (mDataChangeListeners.size() > 0){
-            long newTxBytes = TrafficStats.getTotalTxBytes();
-            long newRxBytes = TrafficStats.getTotalRxBytes();
-            long newTime = System.currentTimeMillis();
+        long newTxBytes = TrafficStats.getTotalTxBytes();
+        long newRxBytes = TrafficStats.getTotalRxBytes();
+        long newTime = System.currentTimeMillis();
 
-            outputBlow = newTxBytes + newRxBytes;
-            outputSpeed = 0;
-            try {
-                outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
-                outputRxSpeed = (newRxBytes - oldTotalRxBytes)*1000/(newTime - oldTime);
-                outputSpeed = outputRxSpeed + outputTxSpeed; // b/s
+        outputBlow = newTxBytes + newRxBytes;
+        try {
+            outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
+            outputRxSpeed = (newRxBytes - oldTotalRxBytes)*1000/(newTime - oldTime);
+            outputSpeed = outputRxSpeed + outputTxSpeed; // b/s
 
-                addSpeedCache(outputSpeed);
-            } catch (Exception e) {
-
-            }
-
-            oldTotalRxBytes = newRxBytes;
-            oldTotalTxBytes = newTxBytes;
-            oldTime = newTime;
-
-            mMainThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (DataChangeListener listener : mDataChangeListeners){
-                        listener.onDataChanged(outputSpeed, outputRxSpeed, outputTxSpeed);
-                    }
-                }
-            });
+            addSpeedCache(outputSpeed);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        oldTotalRxBytes = newRxBytes;
+        oldTotalTxBytes = newTxBytes;
+        oldTime = newTime;
+
+        mMainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                for (DataChangeListener listener : mDataChangeListeners){
+                    listener.onDataChanged(outputSpeed, outputRxSpeed, outputTxSpeed);
+                }
+            }
+        });
 
         if (mAppDataChangeListeners.size() > 0){
             for (AppInfo info : mAppInfos){

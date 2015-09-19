@@ -21,6 +21,8 @@ import cn.kli.utils.Conversion;
 
 public class NotificationService extends Service implements NetworkManager.AppDataChangeListener, NetworkManager.DataChangeListener{
 
+    private final static boolean DEBUG = false;
+
     private NetworkManager mNetworkManager;
     private NetworkNotifManager mNotifManager;
     private Notification mNotification = new Notification();
@@ -54,7 +56,7 @@ public class NotificationService extends Service implements NetworkManager.AppDa
     }
 
     public void showNotification(int type){
-        log("Show notification type:"+type);
+        log("Show notification type:" + type);
         switch (type){
             case NetworkNotifManager.NOTIF_TYPE_DEFAULT:
                 mNetworkManager.removeAppListener(this);
@@ -129,6 +131,8 @@ public class NotificationService extends Service implements NetworkManager.AppDa
     }
 
     private void log(String log){
-        Log.i(getClass().getSimpleName(), log);
+        if (DEBUG){
+            Log.i(getClass().getSimpleName(), log);
+        }
     }
 }

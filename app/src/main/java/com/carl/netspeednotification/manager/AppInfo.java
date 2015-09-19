@@ -38,7 +38,7 @@ public class AppInfo {
             outputTxBlow = newTxBytes - originTxBlow;
             outputRxBlow = newRxBytes - originRxBlow;
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         oldTotalRxBytes = newRxBytes;
