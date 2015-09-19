@@ -1,15 +1,17 @@
-package com.carl.netspeednotification;
+package com.carl.netspeednotification.notification;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.carl.netspeednotification.LaunchActivity;
+import com.carl.netspeednotification.R;
 import com.carl.netspeednotification.manager.AppInfo;
 import com.carl.netspeednotification.manager.NetworkManager;
 
@@ -17,9 +19,10 @@ import java.util.List;
 
 import cn.kli.utils.Conversion;
 
-public class MainService extends Service implements NetworkManager.AppDataChangeListener, NetworkManager.DataChangeListener{
+public class NotificationService extends Service implements NetworkManager.AppDataChangeListener, NetworkManager.DataChangeListener{
 
     private NetworkManager mNetworkManager;
+    private NetworkNotifManager mNotifManager;
     private Notification mNotification = new Notification();
     private int[] mNotifAppIds = {R.id.iv_app_1, R.id.iv_app_2, R.id.iv_app_3, R.id.iv_app_4};
 
@@ -28,14 +31,13 @@ public class MainService extends Service implements NetworkManager.AppDataChange
         return null;
     }
 
-
     @Override
     public void onCreate() {
         super.onCreate();
         mNetworkManager = NetworkManager.getInstance(this);
+        mNotifManager = NetworkNotifManager.getInstance();
+        mNotifManager.bindService(this);
         initNotification();
-        mNetworkManager.addListener(this);
-        mNetworkManager.addAppListener(this);
     }
 
     @Override
@@ -48,14 +50,32 @@ public class MainService extends Service implements NetworkManager.AppDataChange
         mNotification.flags = Notification.FLAG_NO_CLEAR|Notification.FLAG_ONGOING_EVENT;
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, new Intent(this, LaunchActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
         mNotification.contentIntent = pendingIntent;
+        showNotification(mNotifManager.getNotifType());
     }
 
-    private void updateDefaultNotification(List<AppInfo> appInfos){
+    public void showNotification(int type){
+        log("Show notification type:"+type);
+        switch (type){
+            case NetworkNotifManager.NOTIF_TYPE_DEFAULT:
+                mNetworkManager.removeAppListener(this);
+                mNetworkManager.addListener(this);
+                break;
+            case NetworkNotifManager.NOTIF_TYPE_APPS:
+                mNetworkManager.removeListener(this);
+                mNetworkManager.addAppListener(this);
+                break;
+        }
+    }
+
+    private void updateDefaultNotification(){
+        log("updateDefaultNotification");
         mNotification.icon = mNetworkManager.getSpeedIcon();
         if(Build.VERSION.SDK_INT >= 11){
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
         }
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_main);
+        contentView.setTextViewText(R.id.tv_speed, NetworkManager.formatSpeed(mNetworkManager.getSpeed()));
+        contentView.setTextViewText(R.id.tv_blow, NetworkManager.formatBlow(mNetworkManager.getBlow()));
 
         mNotification.contentView = contentView;
         startForeground(1001, mNotification);
@@ -63,6 +83,7 @@ public class MainService extends Service implements NetworkManager.AppDataChange
     }
 
     private void updateDetailNotification(List<AppInfo> appInfos){
+        log("updateDetailNotification");
         mNotification.icon = mNetworkManager.getSpeedIcon();
         if(Build.VERSION.SDK_INT >= 11){
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
@@ -104,6 +125,10 @@ public class MainService extends Service implements NetworkManager.AppDataChange
 
     @Override
     public void onDataChanged(float speed, float rxSpeed, float txSpeed) {
+        updateDefaultNotification();
+    }
 
+    private void log(String log){
+        Log.i(getClass().getSimpleName(), log);
     }
 }

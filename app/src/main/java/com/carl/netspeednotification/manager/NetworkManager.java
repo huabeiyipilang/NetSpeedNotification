@@ -17,7 +17,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.carl.netspeednotification.App;
-import com.carl.netspeednotification.PreferenceUtils;
+import com.carl.netspeednotification.utils.PreferenceUtils;
 import com.carl.netspeednotification.R;
 
 import java.text.DecimalFormat;
@@ -106,7 +106,9 @@ public class NetworkManager {
     }
 
     public void addListener(DataChangeListener listener){
-        mDataChangeListeners.add(listener);
+        if (!mDataChangeListeners.contains(listener)){
+            mDataChangeListeners.add(listener);
+        }
         mHandler.removeMessages(MSG_UPDATE);
         mHandler.sendEmptyMessage(MSG_UPDATE);
     }
@@ -120,7 +122,9 @@ public class NetworkManager {
 
 
     public void addAppListener(AppDataChangeListener listener){
-        mAppDataChangeListeners.add(listener);
+        if (!mAppDataChangeListeners.contains(listener)){
+            mAppDataChangeListeners.add(listener);
+        }
         mHandler.removeMessages(MSG_UPDATE);
         mHandler.sendEmptyMessage(MSG_UPDATE);
     }

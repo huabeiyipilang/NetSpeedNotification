@@ -11,7 +11,7 @@ import com.baidu.mobads.InterstitialAd;
 import com.baidu.mobads.InterstitialAdListener;
 import com.baidu.mobads.SplashAd;
 import com.baidu.mobads.SplashAdListener;
-import com.umeng.analytics.MobclickAgent;
+import com.carl.netspeednotification.utils.PreferenceUtils;
 
 
 public class LaunchActivity extends ActionBarActivity {

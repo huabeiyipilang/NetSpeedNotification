@@ -13,6 +13,8 @@ import com.carl.netspeednotification.base.BaseFragment;
 import com.carl.netspeednotification.base.BlankActivity;
 import com.carl.netspeednotification.manager.NetworkManager;
 import com.carl.netspeednotification.monitor.NetworkMonitorFragment;
+import com.carl.netspeednotification.notification.NetworkNotifManager;
+import com.carl.netspeednotification.notification.NotificationService;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
@@ -22,12 +24,7 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
 
     private CheckBox mSwitchView;
     private NetworkManager mNetworkManager;
-
-    private NetworkManager.DataChangeListener mSpeedChangeListener = new NetworkManager.DataChangeListener() {
-        @Override
-        public void onDataChanged(float speed, float rxSpeed, float txSpeed) {
-        }
-    };
+    private NetworkNotifManager mNotifManager;
 
     @Override
     public int getLayoutRes() {
@@ -37,7 +34,6 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
     public void initViews(View root){
         mSwitchView = (CheckBox)findViewById(R.id.cb_switch);
         mSwitchView.setOnCheckedChangeListener(this);
-        mSwitchView.setChecked(isServiceRunning(this.getActivity(), MainService.class.getName()));
         findViewById(R.id.bt_network_detail).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -48,29 +44,55 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
 
     public void initDatas(){
         mNetworkManager = NetworkManager.getInstance(getActivity().getApplicationContext());
+        mNotifManager = NetworkNotifManager.getInstance();
+        mSwitchView.setChecked(mNotifManager.isServiceRunning());
         initRate();
+
+        RadioButton enableButton = (RadioButton)findViewById(R.id.rb_app_show_enable);
+        RadioButton disableButton = (RadioButton)findViewById(R.id.rb_app_show_disable);
+        if (mNotifManager.getNotifType() == NetworkNotifManager.NOTIF_TYPE_DEFAULT){
+            disableButton.setChecked(true);
+        }else{
+            enableButton.setChecked(true);
+        }
+        CompoundButton.OnCheckedChangeListener onCheckedListener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!isChecked){
+                    return;
+                }
+                switch (buttonView.getId()){
+                    case R.id.rb_app_show_enable:
+                        mNotifManager.setNotifType(NetworkNotifManager.NOTIF_TYPE_APPS);
+                        break;
+                    case R.id.rb_app_show_disable:
+                        mNotifManager.setNotifType(NetworkNotifManager.NOTIF_TYPE_DEFAULT);
+                        break;
+                }
+            }
+        };
+        enableButton.setOnCheckedChangeListener(onCheckedListener);
+        disableButton.setOnCheckedChangeListener(onCheckedListener);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mNetworkManager.addListener(mSpeedChangeListener);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mNetworkManager.removeListener(mSpeedChangeListener);
         MobclickAgent.onPause(this.getActivity());
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (buttonView.getId() == R.id.cb_switch){
+        if (buttonView.getId() == R.id.cb_switch) {
             if (isChecked) {
-                this.getActivity().startService(new Intent(this.getActivity(), MainService.class));
+                mNotifManager.showNotification();
             } else {
-                this.getActivity().stopService(new Intent(this.getActivity(), MainService.class));
+                mNotifManager.hideNotification();
             }
             buttonView.setText(isChecked ? "关闭" : "开启");
         }else {
@@ -79,24 +101,6 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
                 NetworkManager.getInstance(getActivity()).setFreshRate(rate);
             }
         }
-    }
-
-    public static boolean isServiceRunning(Context mContext,String className) {
-        boolean isRunning = false;
-        ActivityManager activityManager = (ActivityManager)
-                mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> serviceList
-                = activityManager.getRunningServices(30);
-        if (!(serviceList.size()>0)) {
-            return false;
-        }
-        for (int i=0; i<serviceList.size(); i++) {
-            if (serviceList.get(i).service.getClassName().equals(className) == true) {
-                isRunning = true;
-                break;
-            }
-        }
-        return isRunning;
     }
 
     private void initRate(){

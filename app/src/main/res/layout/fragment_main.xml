@@ -66,6 +66,38 @@
                 android:tag="5000" />
         </RadioGroup>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="显示流量排行：（耗电）" />
+
+        <RadioGroup
+            android:id="@+id/rg_app_show"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@drawable/checkbox_button"
+                android:text="开启"
+                android:id="@+id/rb_app_show_enable"
+                android:checked="true" />
+
+            <RadioButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@drawable/checkbox_button"
+                android:text="关闭"
+                android:id="@+id/rb_app_show_disable" />
+        </RadioGroup>
+
 
         <TextView
             android:layout_width="wrap_content"

@@ -2,7 +2,7 @@ package com.carl.netspeednotification.features;
 
 import android.content.SharedPreferences;
 
-import com.carl.netspeednotification.PreferenceUtils;
+import com.carl.netspeednotification.utils.PreferenceUtils;
 
 /**
  * Created by carl on 8/24/15.
