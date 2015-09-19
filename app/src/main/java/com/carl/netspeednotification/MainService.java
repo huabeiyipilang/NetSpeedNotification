@@ -4,8 +4,10 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.IBinder;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.carl.netspeednotification.manager.AppInfo;
@@ -19,6 +21,7 @@ public class MainService extends Service implements NetworkManager.AppDataChange
 
     private NetworkManager mNetworkManager;
     private Notification mNotification = new Notification();
+    private int[] mNotifAppIds = {R.id.iv_app_1, R.id.iv_app_2, R.id.iv_app_3, R.id.iv_app_4};
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -47,28 +50,40 @@ public class MainService extends Service implements NetworkManager.AppDataChange
         mNotification.contentIntent = pendingIntent;
     }
 
-    private void updateNotification(List<AppInfo> appInfos){
+    private void updateDefaultNotification(List<AppInfo> appInfos){
         mNotification.icon = mNetworkManager.getSpeedIcon();
         if(Build.VERSION.SDK_INT >= 11){
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
         }
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_main);
-        contentView.setTextViewText(R.id.tv_tx_speed, "上行："+NetworkManager.formatSpeed(mNetworkManager.getTxSpeed()));
-        contentView.setTextViewText(R.id.tv_rx_speed, "下行："+NetworkManager.formatSpeed(mNetworkManager.getRxSpeed()));
 
-        if (appInfos != null && appInfos.size() > 1){
-            AppInfo info = appInfos.get(0);
-            contentView.setTextViewText(R.id.tv_app1, info.getAppName());
-            contentView.setTextViewText(R.id.tv_speed1, NetworkManager.formatSpeed(info.getSpeed()));
-            info = appInfos.get(1);
-            contentView.setTextViewText(R.id.tv_app2, info.getAppName());
-            contentView.setTextViewText(R.id.tv_speed2, NetworkManager.formatSpeed(info.getSpeed()));
-        }else{
-            contentView.setTextViewText(R.id.tv_app1, "");
-            contentView.setTextViewText(R.id.tv_speed1, "");
-            contentView.setTextViewText(R.id.tv_app2, "");
-            contentView.setTextViewText(R.id.tv_speed2, "");
+        mNotification.contentView = contentView;
+        startForeground(1001, mNotification);
+
+    }
+
+    private void updateDetailNotification(List<AppInfo> appInfos){
+        mNotification.icon = mNetworkManager.getSpeedIcon();
+        if(Build.VERSION.SDK_INT >= 11){
+            mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
         }
+        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_with_apps);
+        contentView.setTextViewText(R.id.tv_speed, NetworkManager.formatSpeed(mNetworkManager.getSpeed()));
+        contentView.setTextViewText(R.id.tv_blow, NetworkManager.formatBlow(mNetworkManager.getBlow()));
+
+        int appSize = mNotifAppIds.length;
+        int appCount = 0;
+        for (int i = 0; i < appSize; i++){
+            AppInfo info = appInfos.get(i);
+            if (info.getSpeed() > 0){
+                appCount++;
+                contentView.setViewVisibility(mNotifAppIds[i], View.VISIBLE);
+                contentView.setImageViewBitmap(mNotifAppIds[i], info.getIcon());
+            }else{
+                contentView.setViewVisibility(mNotifAppIds[i], View.GONE);
+            }
+        }
+        contentView.setViewVisibility(R.id.tv_no_app, appCount == 0 ? View.VISIBLE : View.GONE);
         mNotification.contentView = contentView;
         startForeground(1001, mNotification);
 
@@ -84,7 +99,7 @@ public class MainService extends Service implements NetworkManager.AppDataChange
 
     @Override
     public void onAppDataChanged(List<AppInfo> appInfos) {
-        updateNotification(appInfos);
+        updateDetailNotification(appInfos);
     }
 
     @Override

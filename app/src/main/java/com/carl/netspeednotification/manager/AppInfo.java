@@ -2,6 +2,7 @@ package com.carl.netspeednotification.manager;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.TrafficStats;
 import android.os.AsyncTask;
@@ -73,31 +74,43 @@ public class AppInfo {
         return outputTxBlow;
     }
 
+    public Bitmap getIcon(){
+        return NetworkManager.getInstance(App.getContext()).getAppIcon(pkgName);
+    }
+
     public void loadIcon(final ImageView imageView){
         if (imageView == null){
             return;
         }
-        new AsyncTask(){
 
-            @Override
-            protected Object doInBackground(Object[] params) {
-                PackageManager pm = App.getContext().getPackageManager();
-                Drawable icon = null;
-                try {
-                    ApplicationInfo info = pm.getApplicationInfo(pkgName, 0);
-                    icon = info.loadIcon(pm);
-                } catch (PackageManager.NameNotFoundException e) {
-                    icon = App.getContext().getResources().getDrawable(android.R.drawable.sym_def_app_icon);
-                }
-                return icon;
-            }
+        Bitmap bitmap = getIcon();
+        if (bitmap == null){
+            imageView.setImageResource(android.R.drawable.sym_def_app_icon);
+        }else{
+            imageView.setImageBitmap(bitmap);
+        }
 
-            @Override
-            protected void onPostExecute(Object o) {
-                super.onPostExecute(o);
-                Drawable icon = (Drawable)o;
-                imageView.setImageDrawable(icon);
-            }
-        }.execute("");
+//        new AsyncTask(){
+//
+//            @Override
+//            protected Object doInBackground(Object[] params) {
+//                PackageManager pm = App.getContext().getPackageManager();
+//                Drawable icon = null;
+//                try {
+//                    ApplicationInfo info = pm.getApplicationInfo(pkgName, 0);
+//                    icon = info.loadIcon(pm);
+//                } catch (PackageManager.NameNotFoundException e) {
+//                    icon = App.getContext().getResources().getDrawable(android.R.drawable.sym_def_app_icon);
+//                }
+//                return icon;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Object o) {
+//                super.onPostExecute(o);
+//                Drawable icon = (Drawable)o;
+//                imageView.setImageDrawable(icon);
+//            }
+//        }.execute("");
     }
 }

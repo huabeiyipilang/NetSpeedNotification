@@ -2,14 +2,21 @@ package com.carl.netspeednotification.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
+import com.carl.netspeednotification.App;
 import com.carl.netspeednotification.PreferenceUtils;
 import com.carl.netspeednotification.R;
 
@@ -19,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NetworkManager {
 
@@ -36,6 +44,8 @@ public class NetworkManager {
     private float outputRxSpeed = 0f;
     private float outputTxSpeed = 0f;
 
+    private float outputBlow = 0f;
+
     private static final int MSG_UPDATE = 1;
 
     private List<AppInfo> mAppInfos;
@@ -45,6 +55,7 @@ public class NetworkManager {
     private HandlerThread mThread = new HandlerThread("network_speed");
     private NetworkHandler mHandler;
     private LinkedList<Float> mSpeedCache = new LinkedList<Float>();
+    private ConcurrentHashMap<String, Bitmap> mAppIcons = new ConcurrentHashMap<>();
 
     private class NetworkHandler extends Handler{
 
@@ -148,6 +159,7 @@ public class NetworkManager {
             long newRxBytes = TrafficStats.getTotalRxBytes();
             long newTime = System.currentTimeMillis();
 
+            outputBlow = newTxBytes + newRxBytes;
             outputSpeed = 0;
             try {
                 outputTxSpeed = (newTxBytes - oldTotalTxBytes)*1000/(newTime - oldTime);
@@ -189,6 +201,10 @@ public class NetworkManager {
                 }
             });
         }
+    }
+
+    public float getBlow(){
+        return outputBlow;
     }
 
     public float getSpeed(){
@@ -270,11 +286,47 @@ public class NetworkManager {
                         appInfo.pkgName = info.packageName;
                         appInfo.originRxBlow = TrafficStats.getUidRxBytes(appInfo.uid);
                         appInfo.originTxBlow = TrafficStats.getUidTxBytes(appInfo.uid);
+
+                        Drawable icon = null;
+                        try {
+                            ApplicationInfo applicationInfo = pm.getApplicationInfo(appInfo.pkgName, 0);
+                            icon = applicationInfo.loadIcon(pm);
+                        } catch (PackageManager.NameNotFoundException e) {
+                            icon = App.getContext().getResources().getDrawable(android.R.drawable.sym_def_app_icon);
+                        }
+                        Bitmap bitmapIcon = null;
+                        if (icon instanceof BitmapDrawable){
+                            bitmapIcon = ((BitmapDrawable) icon).getBitmap();
+                        }else{
+                            bitmapIcon = drawableToBitamp(icon);
+                        }
+
+                        mAppIcons.put(appInfo.pkgName, bitmapIcon);
+
                         uidList.add(appInfo);
                     }
                 }
             }
         }
+
         return uidList;
+    }
+
+    private Bitmap drawableToBitamp(Drawable drawable)
+    {
+        int w = drawable.getIntrinsicWidth();
+        int h = drawable.getIntrinsicHeight();
+        Bitmap.Config config =
+                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+                        : Bitmap.Config.RGB_565;
+        Bitmap bitmap = Bitmap.createBitmap(w,h,config);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, w, h);
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
+    public Bitmap getAppIcon(String pkgName){
+        return mAppIcons.get(pkgName);
     }
 }
