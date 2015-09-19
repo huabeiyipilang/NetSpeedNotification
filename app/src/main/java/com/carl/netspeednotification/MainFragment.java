@@ -42,8 +42,6 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
             @Override
             public void onClick(View v) {
                 BlankActivity.startFragmentActivity(getActivity(), NetworkMonitorFragment.class, null);
-//                BlankActivity.startFragmentActivity(getActivity(), SpeedMonitorFragment.class, null);
-//                BlankActivity.startFragmentActivity(getActivity(), FeatureFragment.class, null);
             }
         });
     }
