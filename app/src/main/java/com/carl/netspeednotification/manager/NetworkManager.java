@@ -157,6 +157,15 @@ public class NetworkManager {
         return resId;
     }
 
+    public void stop(){
+        mHandler.removeMessages(MSG_UPDATE);
+    }
+
+    public void start(){
+        mHandler.removeMessages(MSG_UPDATE);
+        mHandler.sendEmptyMessage(MSG_UPDATE);
+    }
+
     private void update(){
         long newTxBytes = TrafficStats.getTotalTxBytes();
         long newRxBytes = TrafficStats.getTotalRxBytes();

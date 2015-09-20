@@ -3,7 +3,10 @@ package com.carl.netspeednotification.notification;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -27,6 +30,19 @@ public class NotificationService extends Service implements NetworkManager.AppDa
     private NetworkNotifManager mNotifManager;
     private Notification mNotification = new Notification();
     private int[] mNotifAppIds = {R.id.iv_app_1, R.id.iv_app_2, R.id.iv_app_3, R.id.iv_app_4};
+    private BroadcastReceiver mScreenOnOffReceiver = new BroadcastReceiver() {
+        private String action = null;
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            action = intent.getAction();
+            if (Intent.ACTION_SCREEN_ON.equals(action)) { // 开屏
+                mNetworkManager.start();
+            } else if (Intent.ACTION_SCREEN_OFF.equals(action)) { // 锁屏
+                mNetworkManager.stop();
+            } else if (Intent.ACTION_USER_PRESENT.equals(action)) { // 解锁
+            }
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -40,6 +56,12 @@ public class NotificationService extends Service implements NetworkManager.AppDa
         mNotifManager = NetworkNotifManager.getInstance();
         mNotifManager.bindService(this);
         initNotification();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        registerReceiver(mScreenOnOffReceiver, filter);
     }
 
     @Override
@@ -118,6 +140,7 @@ public class NotificationService extends Service implements NetworkManager.AppDa
         stopForeground(true);
         mNetworkManager.removeAppListener(this);
         mNetworkManager.removeListener(this);
+        unregisterReceiver(mScreenOnOffReceiver);
     }
 
     @Override
