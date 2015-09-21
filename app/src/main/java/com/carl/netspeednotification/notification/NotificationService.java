@@ -145,12 +145,20 @@ public class NotificationService extends Service implements NetworkManager.AppDa
 
     @Override
     public void onAppDataChanged(List<AppInfo> appInfos) {
-        updateDetailNotification(appInfos);
+        try{
+            updateDetailNotification(appInfos);
+        }catch (Exception e){
+
+        }
     }
 
     @Override
     public void onDataChanged(float speed, float rxSpeed, float txSpeed) {
-        updateDefaultNotification();
+        try{
+            updateDefaultNotification();
+        }catch (Exception e){
+
+        }
     }
 
     private void log(String log){
