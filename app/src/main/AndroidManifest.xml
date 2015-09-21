@@ -51,6 +51,9 @@
 
         <activity android:name=".base.BlankActivity" >
         </activity>
+
+        <activity
+            android:name="com.umeng.fb.ConversationActivity"/>
     </application>
 
 </manifest>

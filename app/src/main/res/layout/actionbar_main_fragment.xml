@@ -6,8 +6,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:text="关于"
-        android:id="@+id/button"
+        android:text="反馈"
+        android:id="@+id/bt_feedback"
         android:background="@null"
         android:layout_alignParentRight="true"/>
 

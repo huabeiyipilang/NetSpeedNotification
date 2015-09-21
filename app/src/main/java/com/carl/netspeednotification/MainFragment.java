@@ -16,6 +16,7 @@ import com.carl.netspeednotification.monitor.NetworkMonitorFragment;
 import com.carl.netspeednotification.notification.NetworkNotifManager;
 import com.carl.netspeednotification.notification.NotificationService;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.fb.FeedbackAgent;
 
 import java.util.List;
 
@@ -43,6 +44,14 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
 
         getActionBar().setCustomView(R.layout.actionbar_main_fragment);
         getActionBar().setDisplayShowCustomEnabled(true);
+
+        getActivity().findViewById(R.id.bt_feedback).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FeedbackAgent agent = new FeedbackAgent(getActivity());
+                agent.startFeedbackActivity();
+            }
+        });
     }
 
     public void initDatas(){
