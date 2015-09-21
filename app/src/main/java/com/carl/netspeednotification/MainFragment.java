@@ -40,6 +40,9 @@ public class MainFragment extends BaseFragment implements CompoundButton.OnCheck
                 BlankActivity.startFragmentActivity(getActivity(), NetworkMonitorFragment.class, null);
             }
         });
+
+        getActionBar().setCustomView(R.layout.actionbar_main_fragment);
+        getActionBar().setDisplayShowCustomEnabled(true);
     }
 
     public void initDatas(){
