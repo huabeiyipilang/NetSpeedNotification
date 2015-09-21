@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:text="反馈"
         android:id="@+id/bt_feedback"
-        android:background="@null"
+        android:background="@drawable/action_btn_background"
         android:layout_alignParentRight="true"/>
 
     <TextView
