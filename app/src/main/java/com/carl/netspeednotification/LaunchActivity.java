@@ -3,9 +3,12 @@ package com.carl.netspeednotification;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.baidu.mobads.InterstitialAd;
 import com.baidu.mobads.InterstitialAdListener;
@@ -16,14 +19,34 @@ import com.carl.netspeednotification.utils.PreferenceUtils;
 
 public class LaunchActivity extends ActionBarActivity {
 
-    private Handler mHandler = new Handler();
+    private final static int AD_TIME = 5;
+    private final static int MSG_TIME = 1;
+    private final static int MSG_ENTER_APP = 2;
+    private int mTimeLeft = AD_TIME;
     private ViewGroup mAdsGroup;
     private boolean mNeedShowAd = true;
-    private Runnable mStartRunnable = new Runnable() {
+    private TextView mTimeView;
+
+    private Handler mHandler = new Handler(){
         @Override
-        public void run() {
-            mNeedShowAd = false;
-            LaunchActivity.this.enterApp();
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case MSG_TIME:
+                    if (mTimeLeft == 0)
+                    {
+                        mHandler.sendEmptyMessage(MSG_ENTER_APP);
+                    }else{
+                        mTimeView.setText(mTimeLeft +"");
+                        mHandler.sendEmptyMessageDelayed(MSG_TIME, 1000);
+                    }
+                    mTimeLeft--;
+                    break;
+                case MSG_ENTER_APP:
+                    mNeedShowAd = false;
+                    LaunchActivity.this.enterApp();
+                    break;
+            }
         }
     };
 
@@ -32,21 +55,22 @@ public class LaunchActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
         mAdsGroup = (ViewGroup)findViewById(R.id.ads_container);
+        mTimeView = (TextView)findViewById(R.id.tv_time);
         initPreference();
         initAd();
-        mHandler.postDelayed(mStartRunnable, BuildConfig.DEBUG ? 500 : 3000);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Umeng.onActivityResume(this);
+        mHandler.sendEmptyMessage(MSG_TIME);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mHandler.removeCallbacks(mStartRunnable);
+        mHandler.removeMessages(MSG_ENTER_APP);
         Umeng.onActivityPause(this);
     }
 
@@ -89,7 +113,7 @@ public class LaunchActivity extends ActionBarActivity {
 
             @Override
             public void onAdDismissed() {
-                mHandler.post(mStartRunnable);
+                mHandler.sendEmptyMessage(MSG_ENTER_APP);
                 Umeng.adsActions(Umeng.ADS_ACTION_DISMISS);
             }
 
@@ -110,7 +134,7 @@ public class LaunchActivity extends ActionBarActivity {
             @Override
             public void onAdReady() {
                 if (mNeedShowAd){
-                    mHandler.removeCallbacks(mStartRunnable);
+                    mHandler.removeMessages(MSG_ENTER_APP);
                     interAd.showAd(LaunchActivity.this);
                 }
             }
