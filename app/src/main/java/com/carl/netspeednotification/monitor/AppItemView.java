@@ -50,5 +50,6 @@ public class AppItemView extends BaseItemView{
         AppInfo info = (AppInfo) data;
         mTitleView.setText(info.getAppName());
         info.loadIcon(mIconView);
+        setProgress(0, 100);
     }
 }
