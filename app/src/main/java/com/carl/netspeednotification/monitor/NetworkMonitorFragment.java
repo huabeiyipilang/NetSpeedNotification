@@ -58,9 +58,19 @@ public class NetworkMonitorFragment extends BaseFragment implements NetworkManag
         mAdapter.setView(AppItemView.class);
         mListView.setAdapter(mAdapter);
 
-        getActionBar().setCustomView(R.layout.actionbar_network_monitor_fragment);
-        getActionBar().setDisplayShowCustomEnabled(true);
+        ActionBar actionBar = getActionBar();
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setCustomView(R.layout.actionbar_network_monitor_fragment);
+        actionBar.setDisplayShowCustomEnabled(true);
         mTitleSpinner = (Spinner)getActivity().findViewById(R.id.sp_tabs);
+        getActivity().findViewById(R.id.iv_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
     }
 
     @Override
@@ -127,21 +137,6 @@ public class NetworkMonitorFragment extends BaseFragment implements NetworkManag
     public void onPause() {
         super.onPause();
         NetworkManager.getInstance(getActivity()).removeAppListener(this);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                getActivity().finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void updateSort(){
-        Collections.sort(mAppInfos, mComparator);
-        mAdapter.notifyDataSetChanged();
     }
 
     @Override
