@@ -14,6 +14,7 @@ import com.baidu.mobads.InterstitialAd;
 import com.baidu.mobads.InterstitialAdListener;
 import com.baidu.mobads.SplashAd;
 import com.baidu.mobads.SplashAdListener;
+import com.carl.netspeednotification.manager.NetworkManager;
 import com.carl.netspeednotification.utils.PreferenceUtils;
 
 import java.lang.ref.WeakReference;
@@ -52,6 +53,7 @@ public class LaunchActivity extends ActionBarActivity {
         super.onResume();
         Umeng.onActivityResume(this);
         mHandler.sendEmptyMessage(MSG_TIME);
+        NetworkManager.getInstance(getApplicationContext());
     }
 
     @Override

@@ -32,6 +32,11 @@ public class NetworkManager {
 
     public final static int SPEED_CACHE_MAX = 20;
 
+    private final static float UNIT_KB = 1000;
+    private final static float UNIT_MB = 1000*UNIT_KB;
+    private final static float UNIT_GB = 1000*UNIT_MB;
+    private final static float UNIT_TB = 1000*UNIT_GB;
+
     private static NetworkManager sInstance;
     private Context mContext;
     private SharedPreferences mPref;
@@ -92,7 +97,13 @@ public class NetworkManager {
 
     private NetworkManager(Context context){
         mContext = context;
-        mAppInfos = initAppInfos();
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                mAppInfos = initAppInfos();
+            }
+        }.start();
         mPref = PreferenceUtils.getInstance().getDefault();
         mThread.start();
         mHandler = new NetworkHandler(mThread.getLooper());
@@ -137,22 +148,21 @@ public class NetworkManager {
     }
 
     public void setFreshRate(int rate){
-        SharedPreferences prefs = PreferenceUtils.getInstance().getDefault();
-        prefs.edit().putInt("fresh_rate", rate).commit();
+        mPref.edit().putInt("fresh_rate", rate).commit();
     }
 
     public int getFreshRate(){
-        return PreferenceUtils.getInstance().getDefault().getInt("fresh_rate", 3000);
+        return mPref.getInt("fresh_rate", 3000);
     }
 
     public int getSpeedIcon(){
         float speed = getSpeed();
         int resId = R.drawable.wkb000;
-        if(speed < 1000){   // b/s
-        }else if(speed < 1000000){  // kb/s
-            resId += (int)(speed/1000);
-        }else if(speed < 1000000000){   // mb/s
-            resId = R.drawable.wmb010 + (int)(speed/100000) - 10;
+        if(speed < UNIT_KB){   // b/s
+        }else if(speed < UNIT_MB){  // kb/s
+            resId += (int)(speed/UNIT_KB);
+        }else if(speed < UNIT_GB){   // mb/s
+            resId = R.drawable.wmb010 + (int)(speed/UNIT_MB) - 10;
         }
         return resId;
     }
@@ -189,7 +199,7 @@ public class NetworkManager {
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                for (DataChangeListener listener : mDataChangeListeners){
+                for (DataChangeListener listener : mDataChangeListeners) {
                     listener.onDataChanged(outputSpeed, outputRxSpeed, outputTxSpeed);
                 }
             }
@@ -231,13 +241,13 @@ public class NetworkManager {
 
     public static String formatSpeed(float speed){
         String res = "";
-        if(speed < 1000){   // b/s
+        if(speed < UNIT_KB){   // b/s
             res = "B/s";
-        }else if(speed < 1000000){  // kb/s
-            speed = speed/1000;
+        }else if(speed < UNIT_MB){  // kb/s
+            speed = speed/UNIT_KB;
             res = "K/s";
-        }else if(speed < 1000000000){   // mb/s
-            speed = speed/1000000;
+        }else if(speed < UNIT_GB){   // mb/s
+            speed = speed/UNIT_MB;
             res = "M/s";
         }
         res = formatNumber(speed) + res;
@@ -246,21 +256,28 @@ public class NetworkManager {
 
     public static String formatBlow(float blow){
         String res = "";
-        if(blow < 1000){   // b/s
-            res = "B";
-        }else if(blow < 1000000){  // kb/s
-            blow = blow/1000;
-            res = "K";
-        }else if(blow < 1000000000){   // mb/s
-            blow = blow/1000000;
-            res = "M";
+        if(blow < UNIT_KB){   // b/s
+            res = formatNumber(blow) + "B";
+        }else if(blow < UNIT_MB){  // kb/s
+            blow = blow/UNIT_KB;
+            res = formatNumber(blow) + "K";
+        }else if(blow < UNIT_GB){   // mb/s
+            blow = blow/UNIT_MB;
+            res = formatNumber2(blow) + "M";
+        }else if (blow < UNIT_TB){
+            blow = blow/UNIT_GB;
+            res = formatNumber2(blow) + "G";
         }
-        res = formatNumber(blow) + res;
         return res;
     }
 
     private static String formatNumber(float num){
         DecimalFormat df = new DecimalFormat("0");
+        return df.format(num);
+    }
+
+    private static String formatNumber2(float num){
+        DecimalFormat df = new DecimalFormat("0.00");
         return df.format(num);
     }
 
