@@ -53,7 +53,7 @@ public class NetworkManager {
 
     private static final int MSG_UPDATE = 1;
 
-    private List<AppInfo> mAppInfos;
+    private List<AppInfo> mAppInfos = new ArrayList<>();
     private List<DataChangeListener> mDataChangeListeners = new ArrayList<DataChangeListener>();
     private List<AppDataChangeListener> mAppDataChangeListeners = new ArrayList<AppDataChangeListener>();
     private Handler mMainThreadHandler = new Handler();
