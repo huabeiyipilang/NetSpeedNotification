@@ -24,7 +24,7 @@ import cn.kli.utils.Conversion;
 
 public class NotificationService extends Service implements NetworkManager.AppDataChangeListener, NetworkManager.DataChangeListener{
 
-    private final static boolean DEBUG = false;
+    private final static boolean DEBUG = true;
 
     private NetworkManager mNetworkManager;
     private NetworkNotifManager mNotifManager;
@@ -112,6 +112,7 @@ public class NotificationService extends Service implements NetworkManager.AppDa
         if(Build.VERSION.SDK_INT >= 11){
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
         }
+        log("icon id:"+mNotification.icon);
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_with_apps);
         contentView.setTextViewText(R.id.tv_speed, NetworkManager.formatSpeed(mNetworkManager.getSpeed()));
         contentView.setTextViewText(R.id.tv_blow, NetworkManager.formatBlow(mNetworkManager.getBlow()));
