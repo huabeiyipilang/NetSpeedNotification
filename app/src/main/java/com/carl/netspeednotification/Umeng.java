@@ -1,7 +1,5 @@
 package com.carl.netspeednotification;
 
-import java.util.HashMap;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -21,7 +19,6 @@ public class Umeng {
     }
     
     public static void init(){
-        MobclickAgent.updateOnlineConfig(sContext);
     }
     
     public static void onActivityResume(Activity activity){
@@ -50,36 +47,36 @@ public class Umeng {
     public static void adsActions(String action){
         MobclickAgent.onEvent(sContext, "ads_action", action);
     }
+//
+//    public static String launcherAdType(){
+//        String type = MobclickAgent.getConfigParams(App.getContext(), "launcher_ad_type");
+//        return type;
+//    }
+//
+//    public static boolean isAdsShouldShow(){
+//        String show_ad = MobclickAgent.getConfigParams(App.getContext(), "show_ad");
+//        boolean showAd = "true".equals(show_ad) ? true : false;
+//
+//        String channels = MobclickAgent.getConfigParams(App.getContext(), "show_ad_channel_list");
+//        if(TextUtils.isEmpty(channels)){
+//            showAd = false;
+//        }else{
+//            String[] showAdChannelArray = channels.split(",");
+//            String appChannel = Umeng.getChannel();
+//            if(showAdChannelArray != null && !TextUtils.isEmpty(appChannel)){
+//                boolean contains = false;
+//                for(String channel : showAdChannelArray){
+//                    contains = appChannel.contains(channel);
+//                    if(contains){
+//                        break;
+//                    }
+//                }
+//                showAd = showAd && contains;
+//            }
+//        }
+//        return showAd;
+//    }
 
-    public static String launcherAdType(){
-        String type = MobclickAgent.getConfigParams(App.getContext(), "launcher_ad_type");
-        return type;
-    }
-
-    public static boolean isAdsShouldShow(){
-        String show_ad = MobclickAgent.getConfigParams(App.getContext(), "show_ad");
-        boolean showAd = "true".equals(show_ad) ? true : false;
-
-        String channels = MobclickAgent.getConfigParams(App.getContext(), "show_ad_channel_list");
-        if(TextUtils.isEmpty(channels)){
-            showAd = false;
-        }else{
-            String[] showAdChannelArray = channels.split(",");
-            String appChannel = Umeng.getChannel();
-            if(showAdChannelArray != null && !TextUtils.isEmpty(appChannel)){
-                boolean contains = false;
-                for(String channel : showAdChannelArray){
-                    contains = appChannel.contains(channel);
-                    if(contains){
-                        break;
-                    }
-                }
-                showAd = showAd && contains;
-            }
-        }
-        return showAd;
-    }
-    
     public static String getChannel(){
 		try {
 			ApplicationInfo appInfo = App.getContext().getPackageManager().getApplicationInfo(App.getContext().getPackageName(),

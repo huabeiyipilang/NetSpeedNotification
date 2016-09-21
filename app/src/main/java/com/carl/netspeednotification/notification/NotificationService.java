@@ -148,7 +148,7 @@ public class NotificationService extends Service implements NetworkManager.AppDa
     public void onAppDataChanged(List<AppInfo> appInfos) {
         try{
             updateDetailNotification(appInfos);
-        }catch (Exception e){
+        }catch (Exception ignore){
 
         }
     }
@@ -157,7 +157,7 @@ public class NotificationService extends Service implements NetworkManager.AppDa
     public void onDataChanged(float speed, float rxSpeed, float txSpeed) {
         try{
             updateDefaultNotification();
-        }catch (Exception e){
+        }catch (Exception ignore){
 
         }
     }

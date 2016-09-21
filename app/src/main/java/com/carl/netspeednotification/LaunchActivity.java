@@ -22,7 +22,7 @@ import java.lang.ref.WeakReference;
 
 public class LaunchActivity extends ActionBarActivity {
 
-    private final static int AD_TIME = 5;
+    private final static int AD_TIME = 1;
     private final static int MSG_TIME = 1;
     private final static int MSG_ENTER_APP = 2;
     private ViewGroup mAdsGroup;
@@ -83,14 +83,14 @@ public class LaunchActivity extends ActionBarActivity {
     }
 
     private void initAd(){
-        if (Umeng.isAdsShouldShow()){
-            String type = Umeng.launcherAdType();
-            if ("chaping".equals(type)){
-                initInterstitialAd();
-            }else{
-                initAds();
-            }
-        }
+//        if (Umeng.isAdsShouldShow()){
+//            String type = Umeng.launcherAdType();
+//            if ("chaping".equals(type)){
+//                initInterstitialAd();
+//            }else{
+//                initAds();
+//            }
+//        }
     }
 
     private void initInterstitialAd(){

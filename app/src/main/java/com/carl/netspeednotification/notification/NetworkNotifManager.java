@@ -53,7 +53,7 @@ public class NetworkNotifManager {
             return false;
         }
         for (int i=0; i<serviceList.size(); i++) {
-            if (serviceList.get(i).service.getClassName().equals(className) == true) {
+            if (serviceList.get(i).service.getClassName().equals(className)) {
                 isRunning = true;
                 break;
             }
@@ -71,7 +71,7 @@ public class NetworkNotifManager {
     public void setNotifType(int type){
         SharedPreferences prefs = PreferenceUtils.getInstance().getDefault();
         mNotifType = type;
-        prefs.edit().putInt("notification_type", mNotifType).commit();
+        prefs.edit().putInt("notification_type", mNotifType).apply();
         if (mNotifService != null){
             mNotifService.showNotification(mNotifType);
         }
