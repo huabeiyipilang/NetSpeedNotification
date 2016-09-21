@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -22,7 +23,7 @@ import java.util.List;
 
 import cn.kli.utils.Conversion;
 
-public class NotificationService extends Service implements NetworkManager.AppDataChangeListener, NetworkManager.DataChangeListener{
+public class NotificationService extends Service implements NetworkManager.AppDataChangeListener, NetworkManager.DataChangeListener {
 
     private final static boolean DEBUG = true;
 
@@ -32,6 +33,7 @@ public class NotificationService extends Service implements NetworkManager.AppDa
     private int[] mNotifAppIds = {R.id.iv_app_1, R.id.iv_app_2, R.id.iv_app_3, R.id.iv_app_4};
     private BroadcastReceiver mScreenOnOffReceiver = new BroadcastReceiver() {
         private String action = null;
+
         @Override
         public void onReceive(Context context, Intent intent) {
             action = intent.getAction();
@@ -69,17 +71,16 @@ public class NotificationService extends Service implements NetworkManager.AppDa
         return START_STICKY;
     }
 
-    private void initNotification(){
+    private void initNotification() {
         mNotification = new Notification();
-        mNotification.flags = Notification.FLAG_NO_CLEAR|Notification.FLAG_ONGOING_EVENT;
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, new Intent(this, LaunchActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
-        mNotification.contentIntent = pendingIntent;
+        mNotification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
+        mNotification.contentIntent = PendingIntent.getActivity(this, 1, new Intent(this, LaunchActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
         showNotification(mNotifManager.getNotifType());
     }
 
-    public void showNotification(int type){
+    public void showNotification(int type) {
         log("Show notification type:" + type);
-        switch (type){
+        switch (type) {
             case NetworkNotifManager.NOTIF_TYPE_DEFAULT:
                 mNetworkManager.removeAppListener(this);
                 mNetworkManager.addListener(this);
@@ -91,10 +92,10 @@ public class NotificationService extends Service implements NetworkManager.AppDa
         }
     }
 
-    private void updateDefaultNotification(){
+    private void updateDefaultNotification() {
         log("updateDefaultNotification");
         mNotification.icon = mNetworkManager.getSpeedIcon();
-        if(Build.VERSION.SDK_INT >= 11){
+        if (Build.VERSION.SDK_INT >= 11) {
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
         }
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_main);
@@ -102,37 +103,39 @@ public class NotificationService extends Service implements NetworkManager.AppDa
         contentView.setTextViewText(R.id.tv_blow, NetworkManager.formatBlow(mNetworkManager.getBlow()));
 
         mNotification.contentView = contentView;
-        startForeground(1001, mNotification);
 
+        NotificationManagerCompat manager = NotificationManagerCompat.from(getApplicationContext());
+        manager.notify(1001, mNotification);
     }
 
-    private void updateDetailNotification(List<AppInfo> appInfos){
+    private void updateDetailNotification(List<AppInfo> appInfos) {
         log("updateDetailNotification");
         mNotification.icon = mNetworkManager.getSpeedIcon();
-        if(Build.VERSION.SDK_INT >= 11){
+        if (Build.VERSION.SDK_INT >= 11) {
             mNotification.largeIcon = Conversion.drawable2Bitmap(getResources().getDrawable(R.drawable.ic_launcher));
         }
-        log("icon id:"+mNotification.icon);
+        log("icon id:" + mNotification.icon);
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_with_apps);
         contentView.setTextViewText(R.id.tv_speed, NetworkManager.formatSpeed(mNetworkManager.getSpeed()));
         contentView.setTextViewText(R.id.tv_blow, NetworkManager.formatBlow(mNetworkManager.getBlow()));
 
         int appSize = mNotifAppIds.length;
         int appCount = 0;
-        for (int i = 0; i < appSize; i++){
+        for (int i = 0; i < appSize; i++) {
             AppInfo info = appInfos.get(i);
-            if (info.getSpeed() > 0){
+            if (info.getSpeed() > 0) {
                 appCount++;
                 contentView.setViewVisibility(mNotifAppIds[i], View.VISIBLE);
                 contentView.setImageViewBitmap(mNotifAppIds[i], info.getIcon());
-            }else{
+            } else {
                 contentView.setViewVisibility(mNotifAppIds[i], View.GONE);
             }
         }
         contentView.setViewVisibility(R.id.tv_no_app, appCount == 0 ? View.VISIBLE : View.GONE);
         mNotification.contentView = contentView;
-        startForeground(1001, mNotification);
 
+        NotificationManagerCompat manager = NotificationManagerCompat.from(getApplicationContext());
+        manager.notify(1001, mNotification);
     }
 
     @Override
@@ -146,24 +149,24 @@ public class NotificationService extends Service implements NetworkManager.AppDa
 
     @Override
     public void onAppDataChanged(List<AppInfo> appInfos) {
-        try{
+        try {
             updateDetailNotification(appInfos);
-        }catch (Exception ignore){
+        } catch (Exception ignore) {
 
         }
     }
 
     @Override
     public void onDataChanged(float speed, float rxSpeed, float txSpeed) {
-        try{
+        try {
             updateDefaultNotification();
-        }catch (Exception ignore){
+        } catch (Exception ignore) {
 
         }
     }
 
-    private void log(String log){
-        if (DEBUG){
+    private void log(String log) {
+        if (DEBUG) {
             Log.i(getClass().getSimpleName(), log);
         }
     }
